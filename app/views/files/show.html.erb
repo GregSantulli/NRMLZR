@@ -1,0 +1,6 @@
+
+
+<%= form_tag({action: :normalize}, multipart: true) do %>
+  <%= file_field_tag 'audio_file' %>
+  <%= submit_tag("Normalize") %>
+<% end %>
