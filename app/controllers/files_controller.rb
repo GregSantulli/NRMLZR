@@ -1,17 +1,14 @@
 class FilesController < ApplicationController
 
 	def show
-
 	end
 
 	def normalize
-		p "---------------------AYYYYY---------------------"
 		file = params[:audio_file]
 		filename = file.original_filename
 		tempfile = file.tempfile
 		tempfile_path = tempfile.path
 		normalized_wav = nil
-
 
 		RubyAudio::Sound.open(tempfile, 'r') do |snd|
 		  sample_rate = snd.info.samplerate
@@ -23,13 +20,18 @@ class FilesController < ApplicationController
 		  # File.delete(normalized_wav)
 		end
 
-
-		# binding.pry
 		send_file(normalized_wav)
 	end
 
+	def append_normalized_to_filename(filename)
+		array = filename.split('.')
+		extension = array.pop
+		"#{array.join('.')}_NRMLZD.#{extension}"
+	end
+
 	def create_normalized_wav(snd, points, tmpfilename)
-		normalized_path = tmp_file_path(tmpfilename)
+		normalized_filename = append_normalized_to_filename(tmpfilename)
+		normalized_path = tmp_file_path(normalized_filename)
 	  new_file = RubyAudio::Sound.open(normalized_path, 'w', snd.info.clone)
 	  points = normalize_array_buffer(points)
 	  new_file.write(points)
@@ -43,7 +45,6 @@ class FilesController < ApplicationController
 	    if point.is_a?(Array)
 	    	new_point = [point.first/absmax, point.last/absmax]
 	      points[index] = [point.first/absmax, point.last/absmax]
-	      p new_point if (new_point[0] >=1 || new_point[1] >=1)
 	    else
 	      points[index] = point/absmax
 	    end
