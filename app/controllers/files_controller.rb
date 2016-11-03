@@ -1,5 +1,6 @@
 class FilesController < ApplicationController
 
+	before_action :ensure_wav_or_mp3, only: [:normalize]
 	after_action :delete_tempfiles, only: [:normalize]
 
 	def show
@@ -14,7 +15,7 @@ class FilesController < ApplicationController
 		normalized_file_path = tmp_file_path(normalized_filename)
 
 		unless system "sox --norm #{tempfile_path} #{normalized_file_path.shellescape}"
-			flash[:error] = "sox error"
+			flash[:error] = "SoX error"
 			redirect_to root_path and return
 		end
 
@@ -28,6 +29,13 @@ class FilesController < ApplicationController
 			redirect_to root_path
 		end
 
+	end
+
+	def ensure_wav_or_mp3
+		if !["audio/mp3", "audio/wav"].include? params[:audio_file].content_type
+			flash[:error] = "Filetype not supported"
+			redirect_to root_path
+		end
 	end
 
 	def delete_tempfiles
