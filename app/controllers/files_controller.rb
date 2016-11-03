@@ -1,5 +1,7 @@
 class FilesController < ApplicationController
 
+	after_action :delete_tempfiles, only: [:normalize]
+
 	def show
 	end
 
@@ -8,19 +10,60 @@ class FilesController < ApplicationController
 		filename = file.original_filename
 		tempfile = file.tempfile
 		tempfile_path = tempfile.path
-		normalized_wav = nil
+		# normalized_wav = nil
+		normalized_filename = append_normalized_to_filename(filename)
+		normalized_file_path = tmp_file_path(normalized_filename)
+		# @normalized_wav_path = tmp_file_path("#{normalized_filename}.wav")#.shellescape
+		# @normalized_mp3_path = tmp_file_path("#{normalized_filename}.mp3")#.shellescape
+		# @final_file = nil
 
-		RubyAudio::Sound.open(tempfile, 'r') do |snd|
-		  sample_rate = snd.info.samplerate
-		  length = snd.info.length
-		  sample_count = (sample_rate * length).to_i
-		  points = snd.read(:float, sample_count)
-		  normalized_wav = create_normalized_wav(snd, points, filename)
-		  File.delete(tempfile)
-		  # File.delete(normalized_wav)
+		unless system "sox --norm #{tempfile_path} #{normalized_file_path.shellescape}"
+			flash[:error] = "sox error"
+			redirect_to root_path and return
+		end
+		# binding.pry
+
+		# if file.content_type == 'audio/mp3' && false
+		# 	system "lame -V2 -f #{@normalized_wav_path} #{@normalized_mp3_path}"
+		# 	@final_file = @normalized_mp3_path
+		# else
+			# @final_file = normalized_file_path
+		# end
+
+		begin
+			File.open(normalized_file_path, 'r') do |f|
+			  send_data f.read, type: file.content_type, filename: normalized_filename
+			end
+			delete_tempfiles
+		rescue => e
+			flash[:error] = e.message
+			redirect_to root_path
 		end
 
-		send_file(normalized_wav)
+
+
+		# RubyAudio::Sound.open(tempfile, 'r') do |snd|
+		#   sample_rate = snd.info.samplerate
+		#   length = snd.info.length
+		#   sample_count = (sample_rate * length).to_i
+		#   points = snd.read(:float, sample_count)
+		#   normalized_wav = create_normalized_wav(snd, points, filename)
+		#   File.delete(tempfile)
+		#   # File.delete(normalized_wav)
+		# end
+
+	end
+
+	def delete_tempfiles
+
+		Dir.foreach(tmp_file_path()) do |file| 
+			if ["mp3", "wav"].include? file[-3..-1]
+				File.delete(tmp_file_path(file))
+				p "DELETED #{file}"
+			end
+		end
+		# File.delete(@normalized_wav_path) if @normalized_wav_path && File.exists?(@normalized_wav_path)
+		# File.delete(@normalized_mp3_path) if @normalized_mp3_path && File.exists?(@normalized_mp3_path)
 	end
 
 	def append_normalized_to_filename(filename)
@@ -69,7 +112,7 @@ class FilesController < ApplicationController
 	  max.abs > min.abs ? max.abs : min.abs
 	end
 
-	def tmp_file_path(filename)
+	def tmp_file_path(filename = "")
 	  Rails.root.join('tmp', filename).to_s
 	end
 
