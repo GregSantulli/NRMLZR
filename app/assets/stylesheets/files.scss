@@ -1,42 +1,34 @@
-// Place all the styles related to the files controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
-
-
-body{
-}
-
 .container{
 	text-align: center;
-	padding-top: 100px
-}
-
-#audio_file{
-	display: none
-}
-
-.form-container{
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: space-between;
-	padding: 50px;
-	div{
-		text-align: center
+	padding-top: 100px;
+	h1{
+		letter-spacing: 10px;
 	}
-	input{
-		display: block
+	.form-container{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
+		padding: 50px;
+		div, input{
+			display: block;
+			width: 100%;
+			text-align: center;
+			margin: auto;
+			margin-top: 10px;
+		}
+		#audio_file{
+			display: none;
+		}
+		.btn{
+			width: 200px;
+			letter-spacing: 1px;
+		}
+		.what{
+			margin-top: 80px
+		}
 	}
-	.btn{
-		width: 200px;
-		margin: 10px;
-		letter-spacing: 1px;
+	.error-messages{
+		color: red
 	}
-	.what{
-		margin-top: 80px
-	}
-}
-
-.error-messages{
-	color: red
 }

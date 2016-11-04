@@ -1,36 +1,28 @@
-
-
 <div class="container">
-
-
 
 	<h1>NRMLZ</h1>
 	<h4>An audio file normalizer.</h4>
-	<h4>Currently supports .mp3 and .wav files.</h4>
+	<div>Currently supports .mp3 and .wav files.</div>
 	<div>Powered by <a href="http://sox.sourceforge.net/sox.html">SoX</a></div>
 
 	<div class="form-container">
 
-
 		<%= form_tag({action: :normalize}, multipart: true) do %>
 			<label class="btn btn-default">
-		  	Select File... <%= file_field_tag 'audio_file', accept: ".mp3,.wav" %>
+		  	Select File... <%= file_field_tag 'audio_file', accept: ".mp3,.wav,.caf" %>
 		  </label>
+			<div class="error-messages"> <%= flash[:error] %> </div> 
 			<div class="filename"></div>
 			<div class="filesize"></div>
 		  <%= submit_tag("Normalize", class: 'submit btn btn-primary') %>
 		<% end %>
 
-		<div class="error-messages">
-			<%= flash[:error] %>
-		</div>
-
 		<div class="what">
-			<a href="https://en.wikipedia.org/wiki/Audio_normalization">What is audio normalization?</a>
+			<a href="http://sound.stackexchange.com/a/25916">
+				What is audio normalization?
+			</a>
 		</div>
 
-		
 	</div>
-	
 
 </div>

@@ -1,20 +1,49 @@
+(function() {
 
+	function fileChangeListener(idString){
+		var inputId = "#" + idString
+		var fileInput = $(inputId) 
+		fileInput.bind('change', function(){ 
+			toggleButtonDisabled(this.value)
+			updateView(this)
+		})
+	}
 
-
-$(document).ready(function(){
-	console.log("hi")
-
-	$('.submit').attr('disabled', 'disabled')
-
-
-
-	$('#audio_file').bind('change', function(){ 
-		if($('#audio_file').value != "") {
-		  $('.submit').removeAttr('disabled')
+	function toggleButtonDisabled(input){
+		var button = $('.submit')
+		if(input){
+		  button.removeAttr('disabled')
 		} else {
-			$('.submit').attr('disabled', 'disabled')
+			button.attr('disabled', 'disabled')
 		}
-		$('.filename').html(this.files[0].name)
-		$('.filesize').html(Math.round(this.files[0].size / 1000) + "KB")
+	}
+
+	function updateView(input){
+		var file = input.files[0]
+		var fileName = "" 
+		  , fileSize = "";
+		if (file) {
+			$('.error-messages').html("")
+			fileName = file.name
+			fileSize = formatFileSize(file.size)
+		}
+		$('.filename').html(fileName)
+		$('.filesize').html(fileSize)
+	}
+
+	function formatFileSize(bytes){
+		units = ["bytes", "KB", "MB", "GB", "TB",]
+		unit = 0
+		while(bytes / 1024 > 1){
+			bytes = bytes /1024
+			unit += 1
+		}
+		return Math.round(bytes) + " " + units[unit]
+	}
+
+	$(document).ready(function(){
+		$('.submit').attr('disabled', 'disabled')
+		fileChangeListener('audio_file')
 	})
-})
+
+})();
